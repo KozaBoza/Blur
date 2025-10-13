@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 from camera import Camera
+from ultralytics import YOLO
 
 
-class ImageHumanSegmentation:
+class ImageHumanSegmentationCV2:
     def __init__(self, image):
         self.image = image
         self.gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -28,11 +29,16 @@ class ImageHumanSegmentation:
         return segmented
 
 
+class ImageHumanSegmentationYOLO:
+    def __init__(self, image) -> None:
+        self.image = image
+
+
 if __name__ == "__main__":
     camera = Camera()
     frame = camera.get_frame()
     while True:
-        segmented_image = ImageHumanSegmentation(frame).segment()
+        segmented_image = ImageHumanSegmentationCV2(frame).segment()
         cv2.imshow("Segmented Image", segmented_image)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
