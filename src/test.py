@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from ultralytics.models.yolo import YOLO
-from camera import Camera  # import Twojej klasy z camera.py
+from camera import Camera
 
 
 def blur_background(frame, model):
@@ -16,7 +16,7 @@ def blur_background(frame, model):
             continue
 
         for mask, cls in zip(result.masks.data, result.boxes.cls):
-            if int(cls) == 0:  # klasa 0 = człowiek
+            if int(cls) == 0:
                 mask = mask.cpu().numpy()
                 mask = cv2.resize(mask, (frame.shape[1], frame.shape[0]))
                 mask = (mask > 0.5).astype(np.uint8)
@@ -28,7 +28,6 @@ def blur_background(frame, model):
 
 
 def main():
-    # Wczytaj model segmentacyjny (nano = szybki)
     model = YOLO("yolov8n-seg.pt")
 
     cam = Camera()
@@ -40,7 +39,6 @@ def main():
 
             cv2.imshow("YOLOv8 Live Segmentation Blur", output)
 
-            # wyjście z programu po naciśnięciu 'q'
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 

@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from camera import Camera
-from ultralytics import YOLO
 
 
 class ImageHumanSegmentationCV2:
