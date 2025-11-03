@@ -1,5 +1,5 @@
 import pyvirtualcam
-import blurredCamera
+from blurredCamera import BlurBackground, cv2
 
 
 class VirtualCamera:
@@ -7,17 +7,43 @@ class VirtualCamera:
         self.width = width
         self.height = height
         self.fps = fps
-        self.cam = blurredCamera.blur_background()
-
-    def start(self):
-        print(
-            f"Virtual camera started with resolution {self.width}x{self.height} at {self.fps} FPS."
+        self.cam = pyvirtualcam.Camera(
+            width=self.width, height=self.height, fps=self.fps
         )
+        print(f"Virtual camera initialized at {self.width}x{self.height}@{self.fps}fps")
 
     def send_frame(self, frame):
-        self.cam.send(frame)
+        processed = BlurBackground.segmentation_blur()
+        self.cam.send(processed)
         self.cam.sleep_until_next_frame()
 
-    def stop(self):
+    def close(self):
         self.cam.close()
         print("Virtual camera stopped.")
+
+
+if __name__ == "__main__":
+    vc = VirtualCamera()
+    cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        print("Nie udało się otworzyć kamery.")
+        exit()
+
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            frame = cv2.resize(frame, (vc.width, vc.height))
+            vc.send_frame(frame)
+
+            # Podgląd (opcjonalny)
+            cv2.imshow("Preview (ESC to quit)", frame)
+            if cv2.waitKey(1) == 27:  # ESC
+                break
+    finally:
+        vc.close()
+        cap.release()
+        cv2.destroyAllWindows()
