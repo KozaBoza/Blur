@@ -11,7 +11,7 @@ class Camera:
         ret, frame = self.cap.read()
         if not ret:
             raise ValueError("Failed to capture frame")
-        return frame
+        return cv2.flip(frame, 1)
 
     def release(self):
         self.cap.release()
@@ -22,6 +22,7 @@ if __name__ == "__main__":
     try:
         while True:
             frame = cam.get_frame()
+
             cv2.imshow("Camera Feed", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
