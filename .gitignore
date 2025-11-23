@@ -1,2 +1,2 @@
-links
-Datasets/*
+Dataset/*
+!Dataset/datasetInfo.txt
