@@ -43,13 +43,17 @@ class Segmentation:
 if __name__ == "__main__":
     from Model.UNetModel import UNet
     import matplotlib.pyplot as plt
+    import random
+
+    PATH_IMG = "Dataset/humanSegmentation/images"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = UNet(in_channels=3, out_channels=1)
     model.load_state_dict(torch.load("Model/UNetModel.pth", map_location=device))
     model.to(device)
 
-    input_image = Image.open("Dataset/humanSegmentation/images/ds2_desk-office-workspace-coworking.png")
+    random_image = lambda path: random.choice(os.listdir(path))
+    input_image = Image.open(os.path.join(PATH_IMG, random_image(PATH_IMG)))
     human, background = Segmentation.segmentation(input_image, model, device)
 
     plt.figure(figsize=(10, 5))
