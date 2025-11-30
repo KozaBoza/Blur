@@ -1,75 +1,65 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-
 
 class DoubleConv(nn.Module):
-    """(Conv → BN → ReLU) × 2"""
-
+    """Double convolution: (conv => BN => ReLU) * 2"""
     def __init__(self, in_channels, out_channels):
         super().__init__()
-        self.block = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, 3, padding=1),
+        self.double_conv = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, 3, padding=1),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
+            nn.ReLU(inplace=True)
         )
-
+    
     def forward(self, x):
-        return self.block(x)
+        return self.double_conv(x)
 
 
 class UNet(nn.Module):
-    def __init__(self, in_channels=3, out_channels=1, features=(64, 128, 256, 512)):
+    """UNet architecture for image segmentation"""
+    def __init__(self, in_channels=3, out_channels=1, features=[64, 128, 256, 512]):
         super().__init__()
-
-        self.downs = nn.ModuleList()
-        self.ups = nn.ModuleList()
-        self.pool = nn.MaxPool2d(2, 2)
-
-        # Encoder (Down path)
-        prev_channels = in_channels
+        self.encoder = nn.ModuleList()
+        self.decoder = nn.ModuleList()
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        
         for feature in features:
-            self.downs.append(DoubleConv(prev_channels, feature))
-            prev_channels = feature
-
-        # Bottleneck
-        self.bottleneck = DoubleConv(features[-1], features[-1] * 2)
-
-        # Decoder (Up path)
+            self.encoder.append(DoubleConv(in_channels, feature))
+            in_channels = feature
+        
+        self.bottleneck = DoubleConv(features[-1], features[-1]*2)
+        
         for feature in reversed(features):
-            self.ups.append(
-                nn.ConvTranspose2d(feature * 2, feature, kernel_size=2, stride=2)
+            self.decoder.append(
+                nn.ConvTranspose2d(feature*2, feature, kernel_size=2, stride=2)
             )
-            self.ups.append(DoubleConv(feature * 2, feature))
-
-        # Output layer
+            self.decoder.append(DoubleConv(feature*2, feature))
+        
         self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
-
+    
     def forward(self, x):
         skip_connections = []
-
-        # Down
-        for down in self.downs:
-            x = down(x)
+        
+        for encode in self.encoder:
+            x = encode(x)
             skip_connections.append(x)
             x = self.pool(x)
-
+        
         x = self.bottleneck(x)
+        
         skip_connections = skip_connections[::-1]
-
-        # Up
-        for idx in range(0, len(self.ups), 2):
-            x = self.ups[idx](x)
-            skip_connection = skip_connections[idx // 2]
-
-            # do ogarniecia jak sie bedzie zle trenowal
-            if x.shape != skip_connection.shape:
-                x = F.interpolate(x, size=skip_connection.shape[2:])
-
-            x = torch.cat((skip_connection, x), dim=1)
-            x = self.ups[idx + 1](x)
-
+        
+        for idx in range(0, len(self.decoder), 2):
+            x = self.decoder[idx](x)
+            skip = skip_connections[idx//2]
+            
+            if x.shape != skip.shape:
+                x = nn.functional.interpolate(x, size=skip.shape[2:])
+            
+            x = torch.cat([skip, x], dim=1)
+            x = self.decoder[idx+1](x)
+        
         return torch.sigmoid(self.final_conv(x))
