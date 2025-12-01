@@ -1,52 +1,21 @@
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageOps
 import numpy as np
 
 class ChangeBackground:
     @staticmethod
     def change_background(human, background):
-        """Changes the background of the image to a solid color"""
+        """Changes the background of the image, resizing and cropping to fit."""
 
-        # Ensure human is a PIL Image
-        if not isinstance(human, Image.Image):
-            human = Image.fromarray(human)
-        
-        # Ensure background is a PIL Image
-        if not isinstance(background, Image.Image):
-            background = Image.fromarray(background)
+        if not isinstance(human, Image.Image): human = Image.fromarray(human)
+        if not isinstance(background, Image.Image): background = Image.fromarray(background)
 
-        # 1. Calculate aspect ratios
-        target_width, target_height = human.size
-        bg_width, bg_height = background.size
-        
-        target_ratio = target_width / target_height
-        bg_ratio = bg_width / bg_height
+        background = ImageOps.fit(background, human.size, method=Image.Resampling.LANCZOS)
 
-        # 2. Resize background maintaining aspect ratio to cover the target area
-        if bg_ratio > target_ratio:
-            # Background is wider than target -> resize by height
-            new_height = target_height
-            new_width = int(new_height * bg_ratio)
-        else:
-            # Background is taller than target -> resize by width
-            new_width = target_width
-            new_height = int(new_width / bg_ratio)
-            
-        background = background.resize((new_width, new_height), Image.Resampling.LANCZOS)
-
-        # 3. Center crop the background to match target dimensions exactly
-        left = (new_width - target_width) // 2
-        top = (new_height - target_height) // 2
-        right = left + target_width
-        bottom = top + target_height
-        
-        background = background.crop((left, top, right, bottom))
-        # 4. Composite
-        # Create a binary mask from the grayscale human image using numpy to avoid
-        # type-checker issues with lambda in Image.point.
         human_gray = human.convert("L")
-        human_arr = np.array(human_gray)
-        mask_arr = (human_arr > 0).astype('uint8') * 255
+        mask_arr = np.array(human_gray)
+        mask_arr = (mask_arr > 0).astype('uint8') * 255
         mask = Image.fromarray(mask_arr, mode='L')
+
         return Image.composite(human, background, mask)
 
     @staticmethod
