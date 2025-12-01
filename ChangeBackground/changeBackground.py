@@ -9,7 +9,8 @@ class ChangeBackground:
         if not isinstance(human, Image.Image): human = Image.fromarray(human)
         if not isinstance(background, Image.Image): background = Image.fromarray(background)
 
-        background = ImageOps.fit(background, human.size, method=Image.Resampling.LANCZOS)
+        if background.size != human.size:
+            background = ImageOps.fit(background, human.size, method=Image.Resampling.LANCZOS)
 
         human_gray = human.convert("L")
         mask_arr = np.array(human_gray)
