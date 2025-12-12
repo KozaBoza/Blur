@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from ultralytics.models.yolo import YOLO
-from Camera import Camera
+from camera import Camera
 
 
 class BlurBackground:
