@@ -1,4 +1,5 @@
 import cv2
+
 class Camera:
     def __init__(self, camera_id=0):
         self.cap = cv2.VideoCapture(camera_id)
@@ -17,7 +18,6 @@ class Camera:
 
 if __name__ == "__main__":
     cam = Camera()
-    
 
     # camera resolution: 640x480
     height = int(cam.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
