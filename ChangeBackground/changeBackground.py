@@ -3,8 +3,11 @@ import numpy as np
 
 class ChangeBackground:
     @staticmethod
-    def change_background(human, background):
+    def change_background(human, background, original_image):
         """Changes the background of the image, resizing and cropping to fit."""
+        # if no background provided, return original image
+        if background is None:
+            return original_image
 
         if not isinstance(human, Image.Image): human = Image.fromarray(human)
         if not isinstance(background, Image.Image): background = Image.fromarray(background)
