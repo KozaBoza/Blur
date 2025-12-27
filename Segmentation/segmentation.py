@@ -1,7 +1,6 @@
 from PIL import Image
 import numpy as np
-import torch
-from torchvision import transforms
+from ultralytics import YOLO # type: ignore[attr-defined]
 
 import os
 import sys
@@ -9,29 +8,31 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class Segmentation:
     @staticmethod
-    def segmentation(image, model, device):
-        """Segments the image"""
-        model.eval()
-
+    def segmentation(image, model):
+        """Segments the image using YOLO model"""
         original_image = image.convert('RGB')
         original_size = original_image.size
-        
-        image = original_image.resize((256, 256))
-        image_tensor = transforms.ToTensor()(image).unsqueeze(0)
-        image_tensor = transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-                                        std=[0.229, 0.224, 0.225])(image_tensor)
-        image_tensor = image_tensor.to(device)
-        
-        with torch.no_grad():
-            mask = model(image_tensor)
-            mask = mask.squeeze().cpu().numpy()
-        
-        mask = (mask > 0.5).astype(np.uint8)
-
-        mask_pil = Image.fromarray(mask * 255).resize(original_size, Image.Resampling.NEAREST)
-        mask_array = np.array(mask_pil) / 255.0
-        
         original_array = np.array(original_image)
+        
+        # Run YOLO inference
+        results = model(original_image, verbose=False)
+        
+        # Initialize empty mask
+        mask_array = np.zeros((original_size[1], original_size[0]), dtype=np.float32)
+        
+        # Process results - combine all detected person masks
+        if results[0].masks is not None:
+            masks = results[0].masks.data.cpu().numpy()
+            
+            for mask in masks:
+                # Resize mask to original image size
+                mask_resized = np.array(
+                    Image.fromarray((mask * 255).astype(np.uint8)).resize(
+                        original_size, Image.Resampling.NEAREST
+                    )
+                ) / 255.0
+                # Combine masks (union of all detected persons)
+                mask_array = np.maximum(mask_array, mask_resized)
         
         mask_3d = np.stack([mask_array] * 3, axis=-1)
 
@@ -41,20 +42,17 @@ class Segmentation:
         return human, background
 
 if __name__ == "__main__":
-    from Model.UNetModel import UNet
     import matplotlib.pyplot as plt
     import random
 
     PATH_IMG = "Dataset/humanSegmentation/images"
+    MODEL_PATH = "Model/yolo_human_seg_best.pt"
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = UNet(in_channels=3, out_channels=1)
-    model.load_state_dict(torch.load("Model/UNetModel.pth", map_location=device))
-    model.to(device)
+    model = YOLO(MODEL_PATH)
 
     random_image = lambda path: random.choice(os.listdir(path))
     input_image = Image.open(os.path.join(PATH_IMG, random_image(PATH_IMG)))
-    human, background = Segmentation.segmentation(input_image, model, device)
+    human, background = Segmentation.segmentation(input_image, model)
 
     plt.figure(figsize=(10, 5))
     plt.subplot(1, 3, 1)

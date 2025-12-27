@@ -1,18 +1,15 @@
-from Model.UNetModel import UNet
+from ultralytics import YOLO # type: ignore[attr-defined]
 from Segmentation.segmentation import Segmentation
 from ChangeBackground.changeBackground import ChangeBackground
 from Camera.camera import Camera
 from PIL import Image, ImageOps
-import torch
+import argparse
 import numpy as np
 import cv2
 
-
-def main():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = UNet(in_channels=3, out_channels=1)
-    model.load_state_dict(torch.load("Model/UNetModel.pth", map_location=device))
-    model.to(device)
+def main(model = "yolo11n-seg"):
+    MODEL_PATH = f"Model/{model}.pt"
+    model = YOLO(MODEL_PATH)
 
     PATH_BACKGROUND = "Backgrounds/summonersRift2.png"
     # Load background and convert to RGB immediately
@@ -24,10 +21,7 @@ def main():
 
     cam = Camera()
 
-    # Performance optimization:
-    # 1. Determine target size (smaller = faster)
-    # 2. Prepare background once
-    TARGET_WIDTH = 320
+    TARGET_WIDTH = 640
 
     dummy_frame = cam.get_frame()
     h, w = dummy_frame.shape[:2]
@@ -50,21 +44,19 @@ def main():
             frame = cv2.resize(frame, new_size)
 
             # Process only every 3rd frame to improve performance
-            if frame_count % 3 == 0:
-                frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-                human, background_seg = Segmentation.segmentation(
-                    frame_pil, model, device
-                )
+            frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            human, background_seg = Segmentation.segmentation(
+                frame_pil, model
+            )
 
-                # Use prepared background
-                changed_background = ChangeBackground.change_background(
-                    human, background_prepared
-                )
-                last_result = cv2.cvtColor(
-                    np.array(changed_background), cv2.COLOR_RGB2BGR
-                )
+            # Use prepared background
+            changed_background = ChangeBackground.change_background(
+                human, background_prepared
+            )
+            last_result = cv2.cvtColor(
+                np.array(changed_background), cv2.COLOR_RGB2BGR
+            )
 
-            frame_count += 1
 
             if last_result is not None:
                 cv2.imshow("Changed Background Feed", last_result)
@@ -77,5 +69,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Real-time Background Changer using YOLO Segmentation")
+    parser.add_argument("-m", "--model", type=str, default="yolo11n-seg", help="YOLO model name (default: yolo11n-seg)")
+    args = parser.parse_args()
+    main(args.model)
 

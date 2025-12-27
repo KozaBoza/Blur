@@ -3,11 +3,9 @@ import numpy as np
 
 class ChangeBackground:
     @staticmethod
-    def change_background(human, background, original_image):
+    def change_background(human, background):
         """Changes the background of the image, resizing and cropping to fit."""
-        # if no background provided, return original image
-        if background is None:
-            return original_image
+
 
         if not isinstance(human, Image.Image): human = Image.fromarray(human)
         if not isinstance(background, Image.Image): background = Image.fromarray(background)
@@ -44,20 +42,18 @@ if __name__ == "__main__":
 
     from Segmentation.segmentation import Segmentation
     import torch
-    from Model.UNetModel import UNet
+    from ultralytics import YOLO  # type: ignore[attr-defined]
     import matplotlib.pyplot as plt
     import random
 
     PATH_IMG = "Dataset/humanSegmentation/images"
+    MODEL_PATH = "Model/yolo_human_seg_best.pt"
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = UNet(in_channels=3, out_channels=1)
-    model.load_state_dict(torch.load("Model/UNetModel.pth", map_location=device))
-    model.to(device)
+    model = YOLO(MODEL_PATH)
 
     random_image = lambda path: random.choice(os.listdir(path))
     input_image = Image.open(os.path.join(PATH_IMG, random_image(PATH_IMG)))
-    human, background_seg = Segmentation.segmentation(input_image, model, device)
+    human, background_seg = Segmentation.segmentation(input_image, model)
 
     gauss_blur = ChangeBackground.gaussianBlur(human, background_seg)
 
