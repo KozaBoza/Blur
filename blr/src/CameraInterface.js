@@ -64,11 +64,28 @@ const CameraInterface = ({ onClose }) => {
 
       <div className="video-feed">
         {isPlaying ? (
-            <img 
-              src={`${SERVER_URL}/video_feed`} 
-              alt="Live AI Feed"
-              className="video-stream"
-            />
+            <>
+              <img 
+                src={`${SERVER_URL}/video_feed`} 
+                alt="Live AI Feed"
+                className="video-stream"
+                onLoad={() => console.log("✅ Stream załadowany!")}
+                onError={(e) => console.error("❌ Błąd ładowania streamu:", e)}
+                style={{ width: '100%', height:  '100%', objectFit: 'contain' }}
+              />
+              <div style={{
+                position: 'absolute', 
+                top: 10, 
+                left: 10, 
+                background: 'rgba(0,0,0,0.7)', 
+                color: 'white', 
+                padding: '5px 10px',
+                borderRadius:  '5px',
+                fontSize: '12px'
+              }}>
+                Stream URL: {SERVER_URL}/video_feed
+              </div>
+            </>
         ) : (
             <div className="paused-overlay" style={{color: 'white'}}>Stream paused</div>
         )}
