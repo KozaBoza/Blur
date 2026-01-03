@@ -18,6 +18,12 @@ const IconSettings = () => (
     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
   </svg>
 );
+const IconOBS = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon>
+  </svg>
+);
 
 const CameraInterface = ({ onClose }) => {
   const colorInputRef = useRef(null); 
@@ -35,6 +41,8 @@ const CameraInterface = ({ onClose }) => {
   
   const [consentGiven, setConsentGiven] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [obsRunning, setObsRunning] = useState(false);
+  const [obsAvailable, setObsAvailable] = useState(false);
   const SERVER_URL = "http://localhost:5000"; 
 
   const setMode = async (modeName) => {
@@ -155,8 +163,67 @@ const CameraInterface = ({ onClose }) => {
     if (agree) {
       setConsentGiven(true);
       setIsPlaying(true);
+      checkObsStatus(); // Sprawdź status OBS po uruchomieniu
     } else if (onClose) {
       onClose();
+    }
+  };
+
+  // Sprawdź status OBS przy załadowaniu
+  const checkObsStatus = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/obs/status`);
+      const data = await response.json();
+      setObsAvailable(data.available);
+      setObsRunning(data.running);
+    } catch (err) {
+      console.error("Error checking OBS status:", err);
+    }
+  };
+
+  // Uruchom OBS Virtual Camera
+  const handleStartOBS = async () => {
+    // Sprawdź czy stream jest włączony
+    if (!isPlaying) {
+      alert('⚠️ Najpierw uruchom stream wideo (kliknij Play ▶️)');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${SERVER_URL}/obs/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ camera_index: 1 }) // Możesz zmienić numer kamery
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setObsRunning(true);
+        alert('✅ Wirtualna kamera OBS uruchomiona! Teraz możesz wybrać ją w OBS Studio.');
+      } else {
+        alert(`❌ Błąd: ${data.message}`);
+      }
+    } catch (err) {
+      console.error("Error starting OBS:", err);
+      alert('❌ Nie można uruchomić wirtualnej kamery OBS');
+    }
+  };
+
+  // Zatrzymaj OBS Virtual Camera
+  const handleStopOBS = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/obs/stop`, {
+        method: 'POST'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setObsRunning(false);
+        alert('🛑 Wirtualna kamera OBS zatrzymana');
+      } else {
+        alert(`❌ Błąd: ${data.message}`);
+      }
+    } catch (err) {
+      console.error("Error stopping OBS:", err);
+      alert('❌ Nie można zatrzymać wirtualnej kamery OBS');
     }
   };
 
@@ -166,6 +233,35 @@ const CameraInterface = ({ onClose }) => {
       <button className="close-button" onClick={onClose}>&times;</button>
 
     <div className="video-feed">
+      {/* OBS Status Indicator */}
+      {obsRunning && (
+        <div style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          background: 'rgba(239, 68, 68, 0.9)',
+          color: 'white',
+          padding: '8px 16px',
+          borderRadius: '20px',
+          fontSize: '14px',
+          fontWeight: '600',
+          zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+        }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: 'white',
+            animation: 'pulse 2s ease-in-out infinite'
+          }}></div>
+          OBS LIVE
+        </div>
+      )}
+
       {consentGiven ? (
         isPlaying ? (
           <img 
@@ -332,6 +428,35 @@ const CameraInterface = ({ onClose }) => {
         <button className="control-button" disabled={!isPlaying} onClick={() => setMode('original')} data-tooltip="Reset">
           <IconSettings />
         </button>
+
+        {/* Separator */}
+        <div style={{ width: '1px', height: '32px', background: '#333', margin: '0 8px' }}></div>
+
+        {/* OBS Virtual Camera Control */}
+        {obsAvailable ? (
+          <button 
+            className="control-button" 
+            onClick={obsRunning ? handleStopOBS : handleStartOBS}
+            data-tooltip={obsRunning ? "Stop OBS Camera" : "Start OBS Camera"}
+            disabled={!consentGiven}
+            style={{
+              background: obsRunning ? '#ef4444' : '#10b981',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            <IconOBS />
+          </button>
+        ) : (
+          <button 
+            className="control-button" 
+            disabled
+            data-tooltip="OBS not available (install pyvirtualcam)"
+            style={{ opacity: 0.3 }}
+          >
+            <IconOBS />
+          </button>
+        )}
       </div>
     </div>
   );
