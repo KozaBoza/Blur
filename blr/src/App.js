@@ -4,13 +4,13 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube, FaAppleAlt, FaBarcode, FaUsers, FaCookieBite } from 'react-icons/fa';
 import BlurText from "./components/BlurText.js";
 import { PlayCircle, Square, XCircle } from 'lucide-react';
-import  VIDEO_PLACEHOLDER from "/Users/natalatomala/blr/blr/src/image 11.png";
+import VIDEO_PLACEHOLDER from "./image 11.png";
 import FlowingMenu from './components/FlowingMenu'
 import SectionOne from './Section1.js';
 import SectionTwo from './Section2.js';
 import SectionThree from './Section3.js';
 import SectionFour from './Section4.js';
-import logo from '/Users/natalatomala/blr/blr/src/ps-logo.png';
+import logo from './ps-logo.png';
 import CameraInterface from './CameraInterface';
 
 const AboutUsWidget = ({ toggleAboutUs }) => {

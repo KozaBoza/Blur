@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import LiquidEther from '/Users/natalatomala/blr/blr/src/components/LiquidEther.js';
+import LiquidEther from './components/LiquidEther.js';
 
 const SectionOne = React.forwardRef((props, ref) => {
     const { scrollYProgress } = useScroll({

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useScroll } from 'framer-motion';
 import FlowingMenu from './components/FlowingMenu';
-import pic from '/Users/natalatomala/blr/blr/src/pic.jpg';
+import pic from './pic.jpg';
 const SectionThree = React.forwardRef((props, ref) => {
 const { scrollYProgress } = useScroll({
         target: ref,
