@@ -78,6 +78,20 @@ body {
   transform: translateY(-2px);
 }
 
+.control-button:disabled {
+  background-color: #333;
+  border-color: #444;
+  color: #777;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+.control-button:disabled:hover {
+  background-color: #333;
+  transform: none;
+}
+
 .control-button::after {
   content: attr(data-tooltip); 
   position: absolute;
@@ -144,3 +158,4 @@ body {
 @keyframes fadeIn {
   to { opacity: 1; }
 }
+

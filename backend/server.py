@@ -177,12 +177,6 @@ def generate_frames():
 
 # ========== ENDPOINTY API ==========
 
-@app.route('/video_feed')
-def video_feed():
-    """Stream wideo z przetworzonymi ramkami"""
-    return Response(generate_frames(), 
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
 
 @app.route('/set_mode', methods=['POST'])
 def set_mode():
