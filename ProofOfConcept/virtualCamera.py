@@ -29,7 +29,7 @@ class VirtualCamera:
 
 if __name__ == "__main__":
     # Zmień numer kamery tutaj (0 = domyślna, 1 = druga kamera, itd.)
-    CAMERA_INDEX = 1 
+    CAMERA_INDEX = 0 
     
     vc = VirtualCamera()
     cap = cv2.VideoCapture(CAMERA_INDEX)

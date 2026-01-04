@@ -339,7 +339,7 @@ def start_virtual_camera():
     
     # Pobierz opcjonalny numer kamery z requestu
     data = request.get_json() or {}
-    camera_index = data.get('camera_index', 1)
+    camera_index = data.get('camera_index', 0)
     
     virtual_cam_running = True
     virtual_cam_thread = threading.Thread(target=virtual_camera_loop, daemon=True)
