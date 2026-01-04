@@ -169,7 +169,6 @@ const CameraInterface = ({ onClose }) => {
     }
   };
 
-  // Sprawdź status OBS przy załadowaniu
   const checkObsStatus = async () => {
     try {
       const response = await fetch(`${SERVER_URL}/obs/status`);
@@ -185,7 +184,7 @@ const CameraInterface = ({ onClose }) => {
   const handleStartOBS = async () => {
     // Sprawdź czy stream jest włączony
     if (!isPlaying) {
-      alert('⚠️ Najpierw uruchom stream wideo (kliknij Play ▶️)');
+      alert('First play stream wideo (click Play)');
       return;
     }
     
@@ -193,18 +192,18 @@ const CameraInterface = ({ onClose }) => {
       const response = await fetch(`${SERVER_URL}/obs/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ camera_index: 1 }) // Możesz zmienić numer kamery
+        body: JSON.stringify({ camera_index: 1 }) 
       });
       const data = await response.json();
       if (response.ok) {
         setObsRunning(true);
-        alert('✅ Wirtualna kamera OBS uruchomiona! Teraz możesz wybrać ją w OBS Studio.');
+        alert('Virtual OBS camera started');
       } else {
-        alert(`❌ Błąd: ${data.message}`);
+        alert(`Error: ${data.message}`);
       }
     } catch (err) {
       console.error("Error starting OBS:", err);
-      alert('❌ Nie można uruchomić wirtualnej kamery OBS');
+      alert(' Cannot start virtual OBS camera');
     }
   };
 
@@ -217,13 +216,13 @@ const CameraInterface = ({ onClose }) => {
       const data = await response.json();
       if (response.ok) {
         setObsRunning(false);
-        alert('🛑 Wirtualna kamera OBS zatrzymana');
+        alert('Virtual OBS camera stopped');
       } else {
-        alert(`❌ Błąd: ${data.message}`);
+        alert(`Error: ${data.message}`);
       }
     } catch (err) {
       console.error("Error stopping OBS:", err);
-      alert('❌ Nie można zatrzymać wirtualnej kamery OBS');
+      alert(' Cannot stop virtual OBS camera');
     }
   };
 
@@ -239,7 +238,7 @@ const CameraInterface = ({ onClose }) => {
           position: 'absolute',
           top: '16px',
           right: '16px',
-          background: 'rgba(239, 68, 68, 0.9)',
+          background: 'rgba(0,0,0,0.6)',
           color: 'white',
           padding: '8px 16px',
           borderRadius: '20px',
@@ -268,8 +267,8 @@ const CameraInterface = ({ onClose }) => {
             src={`${SERVER_URL}/video_feed`} 
             alt="Live AI Feed"
             className="video-stream"
-            onLoad={() => console.log("✅ Stream załadowany!")}
-            onError={(e) => console.error("❌ Błąd ładowania streamu:", e)}
+            onLoad={() => console.log(" Stream loaded!")}
+            onError={(e) => console.error("Error:", e)}
             style={{ width: '100%', height:  '100%', objectFit: 'contain' }}
           />
         ) : (
@@ -346,9 +345,9 @@ const CameraInterface = ({ onClose }) => {
             textAlign: 'center'
           }}
         >
-          <div style={{ fontSize: 20, fontWeight: 700 }}>Zgoda na użycie kamery</div>
+          <div style={{ fontSize: 20, fontWeight: 700 }}>Consent</div>
           <div style={{ maxWidth: 420, lineHeight: 1.5, color: '#d8d8d8' }}>
-            Aby kontynuować, potrzebujemy Twojej zgody na uruchomienie kamery. Obraz wideo będzie przetwarzany tylko w celu rozmycia tła.
+           To continue, we need your consent to start the camera. The video feed will be processed only for background blurring.
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             <button
@@ -356,14 +355,14 @@ const CameraInterface = ({ onClose }) => {
               style={{
                 padding: '10px 18px',
                 borderRadius: 10,
-                border: '1px solid #4ade80',
-                background: '#22c55e',
+                border: '1px solid ',
+                background: 'white',
                 color: '#0a0a0a',
                 fontWeight: 700,
                 minWidth: 140
               }}
             >
-              Zgadzam się
+              Agree
             </button>
             <button
               onClick={() => handleConsent(false)}
@@ -376,7 +375,7 @@ const CameraInterface = ({ onClose }) => {
                 minWidth: 140
               }}
             >
-              Odrzuć
+              Reject
             </button>
           </div>
         </div>

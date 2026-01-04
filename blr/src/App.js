@@ -299,9 +299,7 @@ const Navbar = ({ onStartApp, donateRef, toggleAboutUs, toggleFreedgeWidget, han
                             </>
                         ) : (
                             <>
-                                <button className="hidden md:block w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-black transition-colors duration-200">
-                                    <span>&#9788;</span> 
-                                </button>
+                                
                                
                                 <button
                                     onClick={onStartApp}
