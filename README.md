@@ -1,5 +1,5 @@
 # ˗ˏˋ ★ ˎˊ˗ BLUR  ------------------ FRONTEND DESCRIPTION ˗ˏˋ ★ ˎˊ˗ 
-
+https://www.youtube.com/watch?v=LeeKC-RVJzI&t=2s
 A high-fidelity frontend interface designed for a real-time computer vision application. This project serves as both the immersive marketing landing page and the control layer for a YOLOv8-based video segmentation engine.
 
 The application prioritizes visual immersion and performance, utilizing custom WebGL fluid simulations, hardware-accelerated animations, and a unified state management system to transition users from the landing page to the live camera feed without page reloads.
@@ -66,6 +66,12 @@ A visual navigation component designed for high-impact imagery.
     ```
 
 *Note: This frontend requires the accompanying Python backend server running on `localhost:5000` to fully function. Without the backend, video feed components will remain in a placeholder state.*
+
+<img width="1728" height="953" alt="image" src="https://github.com/user-attachments/assets/363ad171-b4e2-4a69-841b-c5a4b8266067" />
+<img width="1728" height="948" alt="image" src="https://github.com/user-attachments/assets/f7412238-904b-43a6-b0dd-9d8400cb3b55" />
+<img width="855" height="839" alt="image" src="https://github.com/user-attachments/assets/5eed68c9-916b-40e7-bf39-7d880cd0f684" />
+
+
 
 ## PROJECT STRUCTURE
 
