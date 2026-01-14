@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import './App.css'; 
+import { motion } from 'framer-motion';
 import LiquidEther from './components/LiquidEther.js';
 
 const IconPerson = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>);
@@ -108,10 +109,7 @@ const CameraInterface = ({ onClose }) => {
   };
 
   const handleColorPickerClose = async () => {
-    // jeśli nie było change (OK), traktujemy zamknięcie jako Anuluj
-    if (committedRef.current) {
-      return;
-    }
+    if (committedRef.current) return;
 
     if (hadColorOnOpenRef.current && openedModeRef.current === 'color') {
       previewColorRef.current = openedColorRef.current;
@@ -163,7 +161,7 @@ const CameraInterface = ({ onClose }) => {
     if (agree) {
       setConsentGiven(true);
       setIsPlaying(true);
-      checkObsStatus(); // Sprawdź status OBS po uruchomieniu
+      checkObsStatus();
     } else if (onClose) {
       onClose();
     }
@@ -175,14 +173,10 @@ const CameraInterface = ({ onClose }) => {
       const data = await response.json();
       setObsAvailable(data.available);
       setObsRunning(data.running);
-    } catch (err) {
-      console.error("Error checking OBS status:", err);
-    }
+    } catch (err) { console.error("Error checking OBS status:", err); }
   };
 
-  // Uruchom OBS Virtual Camera
   const handleStartOBS = async () => {
-    // Sprawdź czy stream jest włączony
     if (!isPlaying) {
       alert('First play stream wideo (click Play)');
       return;
@@ -207,7 +201,6 @@ const CameraInterface = ({ onClose }) => {
     }
   };
 
-  // Zatrzymaj OBS Virtual Camera
   const handleStopOBS = async () => {
     try {
       const response = await fetch(`${SERVER_URL}/obs/stop`, {
@@ -231,152 +224,149 @@ const CameraInterface = ({ onClose }) => {
       
       <button className="close-button" onClick={onClose}>&times;</button>
 
-    <div className="video-feed">
-      {/* OBS Status Indicator */}
-      {obsRunning && (
-        <div style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          background: 'rgba(0,0,0,0.6)',
-          color: 'white',
-          padding: '8px 16px',
-          borderRadius: '20px',
-          fontSize: '14px',
-          fontWeight: '600',
-          zIndex: 10,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-        }}>
+      <div className="video-feed">
+        {obsRunning && (
           <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: 'white',
-            animation: 'pulse 2s ease-in-out infinite'
-          }}></div>
-          OBS LIVE
-        </div>
-      )}
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            background: 'rgba(0,0,0,0.6)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            zIndex: 10,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: 'white',
+              animation: 'pulse 2s ease-in-out infinite'
+            }}></div>
+            OBS LIVE
+          </div>
+        )}
 
-      {consentGiven ? (
-        isPlaying ? (
-          <img 
-            src={`${SERVER_URL}/video_feed`} 
-            alt="Live AI Feed"
-            className="video-stream"
-            onLoad={() => console.log(" Stream loaded!")}
-            onError={(e) => console.error("Error:", e)}
-            style={{ width: '100%', height:  '100%', objectFit: 'contain' }}
-          />
-        ) : (
-          <div 
-            className="paused-overlay" 
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(0,0,0,0.65)',
-              color: 'white',
-              overflow: 'hidden'
-            }}
-          >
-            <div style={{ position: 'absolute', inset: 0 }}>
-              <LiquidEther
-                colors={['#0b1020', '#2c2f3a', '#ffffff']}
-                mouseForce={80}
-                cursorSize={160}
-                resolution={0.6}
-                autoDemo={true}
-                autoSpeed={0.5}
-                autoIntensity={2.2}
-                style={{ width: '100%', height: '100%' }}
-              />
-            </div>
-            <div
+        {consentGiven ? (
+          isPlaying ? (
+            <img 
+              src={`${SERVER_URL}/video_feed`} 
+              alt="Live AI Feed"
+              className="video-stream"
+              onLoad={() => console.log(" Stream loaded!")}
+              onError={(e) => console.error("Error:", e)}
+              style={{ width: '100%', height:  '100%', objectFit: 'contain' }}
+            />
+          ) : (
+            <div 
+              className="paused-overlay" 
               style={{
-                position: 'relative',
-                zIndex: 2,
-                fontSize: 18,
-                letterSpacing: '0.08em',
-                color: '#f5f7ff',
-                textShadow: `
-                  -1px -1px 1px #0b1020,
-                  1px -1px 1px #0b1020,
-                  -1px 1px 1px #0b1020,
-                  1px 1px 1px #0b1020,
-                  0 0 8px rgba(0,0,0,0.6)
-                `
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(0,0,0,0.65)',
+                color: 'white',
+                overflow: 'hidden'
               }}
             >
-              Stream paused
+              <div style={{ position: 'absolute', inset: 0 }}>
+                <LiquidEther
+                  colors={['#0b1020', '#2c2f3a', '#ffffff']}
+                  mouseForce={80}
+                  cursorSize={160}
+                  resolution={0.6}
+                  autoDemo={true}
+                  autoSpeed={0.5}
+                  autoIntensity={2.2}
+                  style={{ width: '100%', height: '100%' }}
+                />
+              </div>
+              <div
+                style={{
+                  position: 'relative',
+                  zIndex: 2,
+                  fontSize: 18,
+                  letterSpacing: '0.08em',
+                  color: '#f5f7ff',
+                  textShadow: `
+                    -1px -1px 1px #0b1020,
+                    1px -1px 1px #0b1020,
+                    -1px 1px 1px #0b1020,
+                    1px 1px 1px #0b1020,
+                    0 0 8px rgba(0,0,0,0.6)
+                  `
+                }}
+              >
+                Stream paused
+              </div>
             </div>
-          </div>
-        )
-      ) : (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'rgba(0,0,0,0.85)'
-          }}
-        />
-      )}
-    </div>
+          )
+        ) : (
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} />
+        )}
+      </div>
 
+      {/* MODAL CONSENT */}
       {!consentGiven && (
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(0,0,0,0.8)',
-            color: 'white',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '16px',
             zIndex: 50,
             padding: '24px',
-            textAlign: 'center'
           }}
         >
-          <div style={{ fontSize: 20, fontWeight: 700 }}>Consent</div>
-          <div style={{ maxWidth: 420, lineHeight: 1.5, color: '#d8d8d8' }}>
-           To continue, we need your consent to start the camera. The video feed will be processed only for background blurring.
-          </div>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button
-              onClick={() => handleConsent(true)}
-              style={{
-                padding: '10px 18px',
-                borderRadius: 10,
-                border: '1px solid ',
-                background: 'white',
-                color: '#0a0a0a',
-                fontWeight: 700,
-                minWidth: 140
-              }}
-            >
-              Agree
-            </button>
-            <button
-              onClick={() => handleConsent(false)}
-              style={{
-                padding: '10px 18px',
-                borderRadius: 10,
-                border: '1px solid #e5e7eb',
-                background: 'transparent',
-                color: '#e5e7eb',
-                minWidth: 140
-              }}
-            >
-              Reject
-            </button>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '24px',
+            padding: '32px',
+            maxWidth: '420px',
+            width: '100%',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+            color: '#1a1a1a',
+            textAlign: 'left'
+          }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', lineHeight: 1.2 }}>
+              Consent
+            </h2>
+            <p style={{ fontSize: '15px', lineHeight: '1.6', color: '#4b5563', marginBottom: '32px' }}>
+              To continue, we need your consent to start the camera. The video feed will be processed only for background blurring.
+            </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              
+              {/* Button: AGREE (Domyślnie czarny, hover biały) */}
+              <motion.button
+                onClick={() => handleConsent(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full py-3.5 rounded-full font-bold text-[15px] border-2 border-black bg-black text-white hover:bg-white hover:text-black transition-colors duration-300 shadow-md"
+              >
+                Agree
+              </motion.button>
+              
+              {/* Button: REJECT (Domyślnie biały/szary, hover ciemniejszy) */}
+              <motion.button
+                onClick={() => handleConsent(false)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full py-3.5 rounded-full font-bold text-[15px] border-2 border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 hover:text-black transition-colors duration-300"
+              >
+                Reject
+              </motion.button>
+
+            </div>
           </div>
         </div>
       )}
@@ -407,7 +397,6 @@ const CameraInterface = ({ onClose }) => {
           {isPlaying ? <IconPause /> : <IconPlay />}
         </button>
         
-        {/* Kontrola BLUR*/}
         <button 
           className="control-button" 
           onClick={() => setMode('blur')} 
@@ -428,10 +417,8 @@ const CameraInterface = ({ onClose }) => {
           <IconSettings />
         </button>
 
-        {/* Separator */}
         <div style={{ width: '1px', height: '32px', background: '#333', margin: '0 8px' }}></div>
 
-        {/* OBS Virtual Camera Control */}
         {obsAvailable ? (
           <button 
             className="control-button" 
