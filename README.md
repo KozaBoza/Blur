@@ -1,5 +1,8 @@
 # ˗ˏˋ ★ ˎˊ˗ BLUR  ------------------ FRONTEND DESCRIPTION ˗ˏˋ ★ ˎˊ˗ 
-https://www.youtube.com/watch?v=LeeKC-RVJzI&t=2s
+
+## VIDEO 
+[Watch the DEMO :)](https://www.youtube.com/watch?v=LeeKC-RVJzI&t=2s)
+
 A high-fidelity frontend interface designed for a real-time computer vision application. This project serves as both the immersive marketing landing page and the control layer for a YOLOv8-based video segmentation engine.
 
 The application prioritizes visual immersion and performance, utilizing custom WebGL fluid simulations, hardware-accelerated animations, and a unified state management system to transition users from the landing page to the live camera feed without page reloads.
